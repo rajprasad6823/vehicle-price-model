@@ -31,7 +31,7 @@ vehicle-price-model/
 ### 1️⃣ Clone the repository
 
 ```bash
-git clone https://github.com/your-username/vehicle-price-model.git
+git clone https://github.com/rajprasad6823/vehicle-price-model.git
 cd vehicle-price-model
 ```
 
@@ -62,8 +62,24 @@ source venv/bin/activate
 ```bash
 pip install -r requirements.txt
 ```
+### 📂 Data Setup (IMPORTANT)
 
----
+This repository does not include training or test data.
+
+Create a data/ folder in the project root and place:
+
+data/
+├── DatiumTrain.rpt
+├── DatiumTest.rpt
+
+
+Ensure the files are tab-separated (\t).
+
+If your files are located elsewhere, update these paths in
+src/train_model.py:
+
+TRAIN_PATH = r"data\DatiumTrain.rpt"
+TEST_PATH  = r"data\DatiumTest.rpt"
 
 ## 🚀 Run the Model
 
