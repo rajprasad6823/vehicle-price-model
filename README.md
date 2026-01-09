@@ -12,8 +12,8 @@ This project predicts vehicle sold prices using structured data and machine lear
 vehicle-price-model/
 │
 ├── data/
-│   ├── train_pickles.csv
-│   ├── test_pickles.csv
+│   ├── DatiumTrain.rpt
+│   ├── DatiumTest.rpt
 │
 ├── src/
 │   ├── train_model.py
