@@ -36,13 +36,57 @@ MAX_SHAP = 2000
 # =============================
 # UTILS
 # =============================
+# =============================
+# SHAP AGGREGATION (ORIGINAL COLUMNS)
+# =============================
+def build_ohe_mapping(preprocessor, numeric_cols, categorical_cols):
+    mapping = {}
+
+    # numeric features
+    for col in numeric_cols:
+        mapping[col] = col
+
+    ohe = preprocessor.named_transformers_["cat"]
+    ohe_features = ohe.get_feature_names_out(categorical_cols)
+
+    for f in ohe_features:
+        # sklearn format: colname_value
+        col = f.split("_", maxsplit=1)[0]
+        mapping[f] = col
+
+    return mapping
+
+
+def aggregate_shap_by_original_feature(shap_values, feature_names, feature_map):
+    shap_df = pd.DataFrame({
+        "feature": feature_names,
+        "mean_abs_shap": np.abs(shap_values).mean(axis=0)
+    })
+
+    shap_df["original_feature"] = shap_df["feature"].map(feature_map)
+
+    agg = (
+        shap_df
+        .groupby("original_feature", as_index=False)["mean_abs_shap"]
+        .sum()
+        .sort_values("mean_abs_shap", ascending=False)
+    )
+
+    return agg
 def infer_column_types(df, ignore_cols, numeric_threshold=0.8):
-    numeric_cols, categorical_cols = [], []
+    numeric_cols = []
+    categorical_cols = []
 
     for col in df.columns:
         if col in ignore_cols:
             continue
 
+        # Explicit string/object columns → categorical
+        if df[col].dtype == "object":
+            categorical_cols.append(col)
+            continue
+
+        # Try numeric coercion
         coerced = pd.to_numeric(df[col], errors="coerce")
         if coerced.notna().mean() > numeric_threshold:
             numeric_cols.append(col)
@@ -85,18 +129,11 @@ def get_feature_names(preprocessor, numeric_cols, categorical_cols):
     return names
 
 
-def mean_abs_shap(shap_values, feature_names, top_n=20):
-    imp = np.abs(shap_values).mean(axis=0)
-    return (
-        pd.DataFrame({"feature": feature_names, "mean_abs_shap": imp})
-        .sort_values("mean_abs_shap", ascending=False)
-        .head(top_n)
-    )
-
 # =============================
 # LOAD & PREPARE TRAIN
 # =============================
 train_df = pd.read_csv(TRAIN_PATH, sep="\t", low_memory=False)
+print("Train length original:",len(train_df.columns))
 train_df = train_df.dropna(subset=[TARGET, NEWPRICE_COL])
 
 train_df[TARGET] = train_df[TARGET].astype(float)
@@ -106,15 +143,26 @@ train_df[NEWPRICE_COL] = train_df[NEWPRICE_COL].astype(float)
 train_df["Target_Ratio"] = train_df[TARGET] / train_df[NEWPRICE_COL]
 
 X_train = train_df.drop(columns=[TARGET, "Target_Ratio"])
+X_train = X_train.drop(columns=IGNORE_COLS, errors="ignore")
 
 numeric_cols, categorical_cols = infer_column_types(X_train, IGNORE_COLS)
-categorical_cols = drop_high_cardinality(X_train, categorical_cols)
+print("Initial numeric:", len(numeric_cols))
+print("Initial categorical:", len(categorical_cols))
 
+categorical_cols = drop_high_cardinality(X_train, categorical_cols, max_unique=100)
+print("Categorical cols after drop:", len(categorical_cols))
+
+# Drop the actual columns from X_train
+X_train = X_train[numeric_cols + categorical_cols]
+print("Train length after dropping high-cardinality:", len(X_train.columns))
+
+# Clean numerics & cast categoricals
 X_train = clean_numeric_tokens(X_train, numeric_cols)
 X_train[categorical_cols] = X_train[categorical_cols].astype(str)
 
 y_train = train_df["Target_Ratio"]
-
+OUTPUT_PATH = "train_predictions.csv"
+X_train.to_csv(OUTPUT_PATH, index=False)
 # =============================
 # PREPROCESSOR
 # =============================
@@ -177,6 +225,9 @@ print(f"MAPE  : {mape_safe(test_df[TARGET], test_df['Pred_SoldAmount']):.2f}%")
 # =============================
 # SHAP
 # =============================
+# =============================
+# SHAP (AGGREGATED TO ORIGINAL COLUMNS)
+# =============================
 X_shap = (
     X_proc[:MAX_SHAP].toarray()
     if hasattr(X_proc, "toarray")
@@ -184,20 +235,41 @@ X_shap = (
 )
 
 explainer = shap.TreeExplainer(model)
-shap_values = explainer.shap_values(X_shap)
-
-shap.summary_plot(
-    shap_values,
+shap_values = explainer.shap_values(
     X_shap,
-    feature_names=FEATURE_NAMES,
-    show=False
+    check_additivity=False
 )
-plt.title("SHAP – SoldAmount / NewPrice Model")
+
+# Build mapping from OHE → original columns
+feature_map = build_ohe_mapping(
+    preprocessor,
+    numeric_cols,
+    categorical_cols
+)
+
+# Aggregate SHAP to original features
+shap_agg = aggregate_shap_by_original_feature(
+    shap_values,
+    FEATURE_NAMES,
+    feature_map
+)
+
+print("\nTOP FEATURES (ORIGINAL COLUMNS)")
+print(shap_agg.head(20))
+
+# Plot aggregated SHAP
+top = shap_agg.head(15)
+
+plt.figure(figsize=(8, 6))
+plt.barh(top["original_feature"], top["mean_abs_shap"])
+plt.gca().invert_yaxis()
+plt.xlabel("Mean |SHAP|")
+plt.title("SHAP Importance by Original Feature")
 plt.tight_layout()
 plt.show()
 
-print("\nTOP FEATURES")
-print(mean_abs_shap(shap_values, FEATURE_NAMES))
+# Optional export
+shap_agg.to_csv("shap_importance_original_columns.csv", index=False)
 
 # =============================
 # MAPE BY PRICE BAND
