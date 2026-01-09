@@ -101,6 +101,9 @@ python src/train_model.py
 
 * Large CSV files are excluded from Git
 * Update file paths inside scripts if needed
+* Model uses LightGBM + OneHotEncoding
+* High-cardinality categorical features are automatically filtered
+* Numeric columns are safely coerced and cleaned
 
 ---
 
