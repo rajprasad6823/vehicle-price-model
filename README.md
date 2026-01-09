@@ -66,12 +66,7 @@ pip install -r requirements.txt
 
 This repository does not include training or test data.
 
-Create a data/ folder in the project root and place:
-
-data/
-├── DatiumTrain.rpt
-├── DatiumTest.rpt
-
+Place the data files 'DatiumTrain.rpt' and 'DatiumTest.rpt' in a folder called 'data'
 
 Ensure the files are tab-separated (\t).
 
