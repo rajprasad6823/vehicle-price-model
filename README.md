@@ -2,8 +2,9 @@ Subject: README.md
 
 # Vehicle Price Prediction Model
 
-This project predicts vehicle sold prices using structured data and machine learning models.
-
+This project predicts vehicle sold prices using structured vehicle data and a LightGBM regression model.
+The model learns the ratio of **Sold_Amount / NewPrice** and applies it to unseen vehicles.
+It also provides **SHAP-based explainability** and **MAPE analysis by price bands**.
 ---
 
 ## 📦 Project Structure
