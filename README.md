@@ -94,7 +94,7 @@ python src/train_model.py
 
 ## 📌 Notes
 
-* Large CSV files are excluded from Git
+* Large data files are excluded from Git via `.gitignore`
 * Update file paths inside scripts if needed
 * Model uses LightGBM + OneHotEncoding
 * High-cardinality categorical features are automatically filtered
