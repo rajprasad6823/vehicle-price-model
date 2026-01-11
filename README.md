@@ -19,7 +19,7 @@ vehicle-price-model/
 ├── src/
 │   ├── train_model.py
 │
-├── requirements.txt
+├── environment.yml
 ├── README.md
 ├── .gitignore
 ```
@@ -34,34 +34,12 @@ vehicle-price-model/
 git clone https://github.com/rajprasad6823/vehicle-price-model.git
 cd vehicle-price-model
 ```
+2️⃣ Create and activate the Conda environment
+conda env create -f environment.yml
+conda activate vehicle-ml
 
-### 2️⃣ Create a virtual environment
 
-```bash
-python -m venv venv
-```
-
-Activate:
-
-**Windows**
-
-```bash
-venv\Scripts\activate
-```
-
-**macOS / Linux**
-
-```bash
-source venv/bin/activate
-```
-
----
-
-### 3️⃣ Install dependencies
-
-```bash
-pip install -r requirements.txt
-```
+Ensure Conda is installed and available in your PATH.
 ### 📂 Data Setup (IMPORTANT)
 
 This repository does not include training or test data.
