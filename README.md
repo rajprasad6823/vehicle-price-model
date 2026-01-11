@@ -38,7 +38,7 @@ cd vehicle-price-model
 ### 2️⃣ Create a virtual environment
 
 ```bash
-python -m venv venv
+python -m venv vehicle-ml
 ```
 
 Activate:
@@ -46,13 +46,13 @@ Activate:
 **Windows**
 
 ```bash
-venv\Scripts\activate
+vehicle-ml\Scripts\activate
 ```
 
 **macOS / Linux**
 
 ```bash
-source venv/bin/activate
+source vehicle-ml/bin/activate
 ```
 
 ---
