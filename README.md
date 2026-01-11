@@ -34,34 +34,12 @@ vehicle-price-model/
 git clone https://github.com/rajprasad6823/vehicle-price-model.git
 cd vehicle-price-model
 ```
-
-### 2️⃣ Create a virtual environment
-
-```bash
-python -m venv vehicle-ml
-```
-
-Activate:
-
-**Windows**
-
-```bash
-vehicle-ml\Scripts\activate
-```
-
-**macOS / Linux**
-
-```bash
-source vehicle-ml/bin/activate
-```
-
----
-
-### 3️⃣ Install dependencies
-
-```bash
+2️⃣ Create and activate the Conda environment
 conda env create -f environment.yml
-```
+conda activate vehicle-ml
+
+
+Ensure Conda is installed and available in your PATH.
 ### 📂 Data Setup (IMPORTANT)
 
 This repository does not include training or test data.
