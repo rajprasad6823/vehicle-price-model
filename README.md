@@ -35,9 +35,10 @@ git clone https://github.com/rajprasad6823/vehicle-price-model.git
 cd vehicle-price-model
 ```
 2️⃣ Create and activate the Conda environment
+```
 conda env create -f environment.yml
 conda activate vehicle-ml
-
+```
 
 Ensure Conda is installed and available in your PATH.
 ### 📂 Data Setup (IMPORTANT)
