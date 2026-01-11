@@ -19,7 +19,7 @@ vehicle-price-model/
 ├── src/
 │   ├── train_model.py
 │
-├── requirements.txt
+├── environment.yml
 ├── README.md
 ├── .gitignore
 ```
@@ -60,7 +60,7 @@ source venv/bin/activate
 ### 3️⃣ Install dependencies
 
 ```bash
-pip install -r requirements.txt
+conda env create -f environment.yml
 ```
 ### 📂 Data Setup (IMPORTANT)
 
